@@ -3,7 +3,7 @@ Adilet Kabiyev
 
 SE-2433
 
-Link: https://github.com/DudeWithaCap/BackendTest 
+Link: https://backendtest-5a11.onrender.com/frontend/main.html 
 
 
 <h2>Overview</h2>
@@ -27,3 +27,17 @@ Role-based access control (RBAC): guest, customer user, admin
 Google Authenitcator-based OTP 2 factor authentication
 
 Password hashing using bcrypt
+
+
+<h2>Run project locally</h2>
+
+Download the project as a zip, unpack it
+
+Install all dependencies
+
+Create .env file and add your own MONGODB_URI, JWT_SECRET, JWT_EXPIRES_IN
+
+Run the project using npm start
+
+<h2>API Documentation</h2>
+
