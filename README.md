@@ -69,6 +69,20 @@ PUT /publisher/:id - update publisher information, access by id
 DELETE /publisher/:id - delete publisher, access by id
 
 
+<h3>Orders</h3>
+
+POST /cart - add books to cart
+
+GET /my - get all books from cart (if added)
+
+DELETE /cart/:BookId - delete a book from cart by BookId
+
+GET order/ - for admins in dashboard to see all orders
+
+
+
+
+
 <h3>Users</h3>
 
 GET /user/ - get all users
@@ -78,6 +92,7 @@ GET /user/:id - get a specific user by id
 PUT /user/:id/role - update a specific user information, access by id
 
 DELETE /user/:id - delete a user, access by id
+
 
 
 <h3>Authorization and Authentication</h3>
