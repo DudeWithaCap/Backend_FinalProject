@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login & Sign Up</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="auth-utils.js"></script>
+</head>
+<body>
+  <div class="auth-container">
+    <div class="auth-box" id="loginBox">
+      <div class="form-container">
+        <h2>Login</h2>
+        <div id="loginError" class="error hidden"></div>
+        <form id="loginForm">
+          <div>
+            <label>Email</label>
+            <input type="email" id="loginEmail" required>
+          </div>
+          <div>
+            <label>Password</label>
+            <input type="password" id="loginPassword" required>
+          </div>
+          <button type="submit" class="btn-primary">Login</button>
+        </form>
+        <div class="toggle-link">
+          Don't have an account? <a onclick="toggleForms()">Sign up</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="auth-box hidden" id="totpSetupBox">
+      <div class="form-container">
+        <h2>Set Up 2FA - Google Authenticator</h2>
+        <div id="totpSetupError" class="error hidden"></div>
+        <p style="color: var(--text-secondary); font-size: 0.9rem; margin: 1rem 0;">
+          For security, admin accounts must use Two-Factor Authentication (2FA). 
+          Download Google Authenticator and scan the QR code below.
+        </p>
+        <div style="text-align: center; margin: 1.5rem 0; background: #fff; padding: 1rem; border-radius: 8px;">
+          <img id="totpQRCode" src="" alt="QR Code" style="max-width: 200px;">
+        </div>
+        <div style="margin: 1rem 0; padding: 0.8rem; background: #f5f5f5; border-radius: 5px; font-size: 0.85rem;">
+          <strong>Manual entry key:</strong>
+          <div style="word-break: break-all; font-family: monospace; margin-top: 0.5rem;" id="manualKey"></div>
+        </div>
+        <form id="totpSetupForm">
+          <div>
+            <label>Enter 6-digit code from Google Authenticator</label>
+            <input type="text" id="totpSetupCode" placeholder="000000" maxlength="6" inputmode="numeric" required>
+          </div>
+          <button type="submit" class="btn-primary">Verify & Enable 2FA</button>
+          <button type="button" class="btn-secondary" onclick="cancelTOTPSetup()" style="margin-top: 0.5rem; width: 100%;">Cancel</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="auth-box hidden" id="totpVerifyBox">
+      <div class="form-container">
+        <h2>Enter 2FA Code</h2>
+        <div id="totpVerifyError" class="error hidden"></div>
+        <p style="color: var(--text-secondary); font-size: 0.9rem; margin: 1rem 0;">
+          Enter the 6-digit code from your Google Authenticator app.
+        </p>
+        <form id="totpVerifyForm">
+          <div>
+            <label>6-digit code</label>
+            <input type="text" id="totpVerifyCode" placeholder="000000" maxlength="6" inputmode="numeric" required>
+          </div>
+          <button type="submit" class="btn-primary">Verify</button>
+          <button type="button" class="btn-secondary" onclick="cancelTOTPVerify()" style="margin-top: 0.5rem; width: 100%;">Cancel</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="auth-box hidden" id="signupBox">
+      <div class="form-container">
+        <h2>Sign Up</h2>
+        <div id="signupError" class="error hidden"></div>
+        <form id="signupForm">
+          <div>
+            <label>Username</label>
+            <input type="text" id="signupUsername" required minlength="3">
+          </div>
+          <div>
+            <label>Email</label>
+            <input type="email" id="signupEmail" required>
+          </div>
+          <div>
+            <label>Password</label>
+            <input type="password" id="signupPassword" required minlength="6">
+          </div>
+          <div>
+            <label>Confirm Password</label>
+            <input type="password" id="signupConfirmPassword" required>
+          </div>
+          <button type="submit" class="btn-primary">Sign Up</button>
+        </form>
+        <div class="toggle-link">
+          Already have an account? <a onclick="toggleForms()">Login</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = '/auth';
+    let currentTempToken = null;
+    let currentSecret = null;
+
+    function toggleForms() {
+      document.getElementById('loginBox').classList.toggle('hidden');
+      document.getElementById('signupBox').classList.toggle('hidden');
+      document.getElementById('loginError').classList.add('hidden');
+      document.getElementById('signupError').classList.add('hidden');
+    }
+
+    function showError(errorId, message) {
+      const errorBox = document.getElementById(errorId);
+      errorBox.textContent = message;
+      errorBox.classList.remove('hidden');
+      setTimeout(() => {
+        errorBox.classList.add('hidden');
+      }, 5000);
+    }
+
+    function hidePage(pageId) {
+      document.getElementById('loginBox').classList.add('hidden');
+      document.getElementById('signupBox').classList.add('hidden');
+      document.getElementById('totpSetupBox').classList.add('hidden');
+      document.getElementById('totpVerifyBox').classList.add('hidden');
+    }
+
+    function showPage(pageId) {
+      hidePage();
+      document.getElementById(pageId).classList.remove('hidden');
+    }
+
+    async function setupTOTPUI() {
+      try {
+        const response = await fetch(`${API_URL}/totp/setup`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${currentTempToken}`
+          }
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          showError('totpSetupError', data.message || 'Failed to setup TOTP');
+          return;
+        }
+
+        currentSecret = data.secret;
+        document.getElementById('totpQRCode').src = data.qrCode;
+        document.getElementById('manualKey').textContent = data.manualEntry;
+        showPage('totpSetupBox');
+      } catch (err) {
+        showError('totpSetupError', 'Error setting up TOTP');
+        console.error('TOTP setup error:', err);
+      }
+    }
+
+    function cancelTOTPSetup() {
+      currentTempToken = null;
+      currentSecret = null;
+      showPage('loginBox');
+    }
+
+    function cancelTOTPVerify() {
+      currentTempToken = null;
+      showPage('loginBox');
+    }
+
+    document.getElementById('totpSetupForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const code = document.getElementById('totpSetupCode').value;
+
+      if (code.length !== 6 || isNaN(code)) {
+        showError('totpSetupError', 'Please enter a valid 6-digit code');
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_URL}/totp/verify-setup`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${currentTempToken}`
+          },
+          body: JSON.stringify({ secret: currentSecret, code })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          showError('totpSetupError', data.message || 'Invalid code');
+          return;
+        }
+
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+
+        alert('2FA has been successfully enabled!');
+        window.location.href = '/frontend/index.html';
+      } catch (err) {
+        showError('totpSetupError', 'Error verifying TOTP code');
+        console.error('TOTP verify error:', err);
+      }
+    });
+
+    document.getElementById('totpVerifyForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const code = document.getElementById('totpVerifyCode').value;
+
+      if (code.length !== 6 || isNaN(code)) {
+        showError('totpVerifyError', 'Please enter a valid 6-digit code');
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_URL}/totp/verify-login`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${currentTempToken}`
+          },
+          body: JSON.stringify({ code })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          showError('totpVerifyError', data.message || 'Invalid code');
+          return;
+        }
+
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+
+        window.location.href = '/frontend/index.html';
+      } catch (err) {
+        showError('totpVerifyError', 'Error verifying TOTP code');
+        console.error('TOTP verify error:', err);
+      }
+    });
+
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+
+      try {
+        const response = await fetch(`${API_URL}/login`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          showError('loginError', data.message || 'Login failed');
+          return;
+        }
+
+        if (data.totpRequired === 'setup') {
+          currentTempToken = data.tempToken;
+          await setupTOTPUI();
+          return;
+        } else if (data.totpRequired === 'verify') {
+          currentTempToken = data.tempToken;
+          showPage('totpVerifyBox');
+          return;
+        }
+
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+
+        const redirectUrl = data.user && data.user.role === 'admin'
+          ? '/frontend/index.html'
+          : '/frontend/main.html';
+        window.location.href = redirectUrl;
+      } catch (err) {
+        showError('loginError', 'An error occurred. Please try again.');
+        console.error('Login error:', err);
+      }
+    });
+
+    document.getElementById('signupForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const username = document.getElementById('signupUsername').value;
+      const email = document.getElementById('signupEmail').value;
+      const password = document.getElementById('signupPassword').value;
+      const confirmPassword = document.getElementById('signupConfirmPassword').value;
+
+      if (password !== confirmPassword) {
+        showError('signupError', 'Passwords do not match');
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_URL}/signup`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ username, email, password, confirmPassword })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          showError('signupError', data.message || 'Sign up failed');
+          return;
+        }
+
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+
+        const redirectUrl = data.user && data.user.role === 'admin'
+          ? '/frontend/index.html'
+          : '/frontend/main.html';
+        window.location.href = redirectUrl;
+      } catch (err) {
+        showError('signupError', 'An error occurred. Please try again.');
+        console.error('Sign up error:', err);
+      }
+    });
+
+    window.addEventListener('load', function() {
+      const token = localStorage.getItem('token');
+      const userRaw = localStorage.getItem('user');
+      if (token && userRaw) {
+        try {
+          const user = JSON.parse(userRaw);
+          const redirectUrl = user && user.role === 'admin'
+            ? '/frontend/index.html'
+            : '/frontend/main.html';
+          window.location.href = redirectUrl;
+        } catch (e) {
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+        }
+      }
+    });
+  </script>
+</body>
+</html>

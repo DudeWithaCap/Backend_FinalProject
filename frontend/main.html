@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bookstore — Browse</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="auth-utils.js"></script>
+</head>
+<body>
+  <header class="header" style="position:static;">
+    <div style="display:flex; align-items:center; gap:1rem;">
+      <h1 style="margin:0;">Bookstore</h1>
+    </div>
+    <div id="headerActions" class="header-info">
+      <span id="guestLinks">
+        <a href="/frontend/auth.html">Login / Signup</a>
+      </span>
+      <span id="userLinks" style="display:none;"></span>
+    </div>
+  </header>
+
+  <main style="padding:2rem; max-width:1200px; margin:0 auto;">
+    <section style="margin-bottom:1rem; display:flex; justify-content:space-between; align-items:center;">
+      <h2>Available Books</h2>
+      <div>
+        <button id="viewOrdersBtn" class="btn-secondary" style="display:none;">My Orders</button>
+      </div>
+    </section>
+
+    <div id="booksGrid" class="books-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:1rem;"></div>
+
+    <div id="emptyMessage" style="text-align:center; color:var(--text-secondary); padding:2rem; display:none;">No books available.</div>
+  </main>
+
+  <div id="ordersModal" class="form-container hidden" style="max-width:600px; position:fixed; right:20px; top:80px; z-index:200;">
+    <h3>My Orders</h3>
+    <div id="ordersList"></div>
+    <div style="margin-top:1rem; display:flex; gap:0.5rem; justify-content:flex-end;">
+      <button class="btn-secondary" onclick="closeOrders()">Close</button>
+      <button class="btn-primary" onclick="checkout()">Checkout</button>
+    </div>
+  </div>
+
+  <div id="bookDetailsModal" class="hidden" style="position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; z-index:300;">
+    <div class="form-container" style="max-width:600px; background:var(--card-bg); border-radius:12px; box-shadow:0 10px 40px rgba(0,0,0,0.3);">
+      <div style="padding:2rem;">
+        <h2 id="bookDetailsTitle" style="margin-top:0; margin-bottom:0.5rem;"></h2>
+        <div style="color:var(--text-secondary); font-size:1rem; margin-bottom:1.5rem;">
+          <p style="margin:0.3rem 0;"><strong>Author:</strong> <span id="bookDetailsAuthor"></span></p>
+          <p style="margin:0.3rem 0;"><strong>Genre:</strong> <span id="bookDetailsGenre"></span></p>
+          <p style="margin:0.3rem 0;"><strong>Published:</strong> <span id="bookDetailsYear"></span></p>
+        </div>
+        <div style="display:flex; gap:0.5rem; justify-content:flex-end;">
+          <button class="btn-secondary" onclick="closeBookDetails()">Close</button>
+          <button class="btn-primary" onclick="addToCartFromDetails()">Add to Cart</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="main.js"></script>
+</body>
+</html>

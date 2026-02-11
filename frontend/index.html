@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bookstore Admin Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="auth-utils.js"></script>
+</head>
+<body>
+  <div class="container">
+    <aside class="sidebar">
+      <div class="logo">
+        <h2>Admin</h2>
+      </div>
+      <nav class="nav-menu">
+        <a href="#" class="nav-item active" data-section="dashboard">
+          <span>Dashboard</span>
+        </a>
+        <a href="#" class="nav-item" data-section="books">
+          <span>Books</span>
+        </a>
+        <a href="#" class="nav-item" data-section="publishers">
+          <span>Publishers</span>
+        </a>
+        <a href="#" class="nav-item" data-section="orders">
+          <span>Orders</span>
+        </a>
+        <a href="#" class="nav-item" data-section="users">
+          <span>Users</span>
+        </a>
+      </nav>
+    </aside>
+    <main class="main-content">
+      <header class="header">
+        <h1>Dashboard</h1>
+        <div class="header-info">
+          <span id="dateTime"></span>
+          <div id="userInfo" style="margin-left: 20px; padding: 10px; background: #f0f0f0; border-radius: 5px;"></div>
+        </div>
+      </header>
+      <section id="dashboard" class="content-section active">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Total Books</div>
+            <div class="stat-value" id="totalBooks">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Total Publishers</div>
+            <div class="stat-value" id="totalPublishers">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Total Orders</div>
+            <div class="stat-value" id="totalOrders">0</div>
+          </div>
+        </div>
+      </section>
+      <section id="books" class="content-section">
+        <div class="section-header">
+          <h2>Books Management</h2>
+          <button class="btn-primary admin-only" onclick="toggleBookForm()">+ Add Book</button>
+        </div>
+        <div id="bookFormContainer" class="form-container hidden">
+          <h3>Add New Book</h3>
+          <form id="bookForm">
+            <input type="text" id="bookTitle" placeholder="Title" required>
+            <input type="text" id="bookAuthor" placeholder="Author" required>
+            <input type="text" id="bookGenre" placeholder="Genre" required>
+            <input type="number" id="bookYear" placeholder="Year Published" required>
+            <div class="form-actions">
+              <button type="submit" class="btn-primary">Add Book</button>
+              <button type="button" class="btn-secondary" onclick="toggleBookForm()">Cancel</button>
+            </div>
+          </form>
+        </div>
+        <div class="table-container">
+          <table id="booksTable">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Genre</th>
+                <th>Year</th>
+                <th>Added</th>
+                <th class="admin-only">Action</th>
+              </tr>
+            </thead>
+            <tbody id="booksTableBody">
+            </tbody>
+          </table>
+          <div id="booksEmpty" class="empty-state">No books yet</div>
+        </div>
+      </section>
+      <section id="publishers" class="content-section">
+        <div class="section-header">
+          <h2>Publishers Management</h2>
+          <button class="btn-primary admin-only" onclick="togglePublisherForm()">+ Add Publisher</button>
+        </div>
+        <div id="publisherFormContainer" class="form-container hidden">
+          <h3>Add New Publisher</h3>
+          <form id="publisherForm">
+            <input type="text" id="publisherCompanyName" placeholder="Company Name" required>
+            <input type="text" id="publisherCountry" placeholder="Country" required>
+            <input type="text" id="publisherCity" placeholder="City">
+            <input type="text" id="publisherGenre" placeholder="Primary Genre" required>
+            <div class="form-actions">
+              <button type="submit" class="btn-primary">Add Publisher</button>
+              <button type="button" class="btn-secondary" onclick="togglePublisherForm()">Cancel</button>
+            </div>
+          </form>
+        </div>
+        <div class="table-container">
+          <table id="publishersTable">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Company Name</th>
+                <th>Country</th>
+                <th>City</th>
+                <th>Genre</th>
+                <th>Added</th>
+                <th class="admin-only">Action</th>
+              </tr>
+            </thead>
+            <tbody id="publishersTableBody">
+            </tbody>
+          </table>
+          <div id="publishersEmpty" class="empty-state">No publishers yet</div>
+        </div>
+      </section>
+      <section id="orders" class="content-section">
+        <div class="section-header">
+          <h2>Active Orders</h2>
+        </div>
+        <div class="table-container">
+          <table id="ordersTable">
+            <thead>
+              <tr>
+                <th>Customer</th>
+                <th>Email</th>
+                <th>Books</th>
+                <th>Created</th>
+              </tr>
+            </thead>
+            <tbody id="ordersTableBody">
+            </tbody>
+          </table>
+          <div id="ordersEmpty" class="empty-state">No active orders</div>
+        </div>
+      </section>
+      <section id="users" class="content-section">
+        <div class="section-header">
+          <h2>Users Management</h2>
+        </div>
+        <div class="table-container">
+          <table id="usersTable">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Joined</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="usersTableBody">
+            </tbody>
+          </table>
+          <div id="usersEmpty" class="empty-state">No users found</div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
