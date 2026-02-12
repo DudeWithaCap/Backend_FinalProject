@@ -43,30 +43,30 @@ Run the project using npm start
 
 <h3>Books</h3>
 
-GET /book/ - get all books
+GET /books/ - get all books
 
-GET /book/:id - get book by id
+GET /books/:id - get book by id
 
-POST /book/ - create a new book
+POST /books/ - create a new book
 
 
-PUT /book/:id - update book information, access by id
+PUT /books/:id - update book information, access by id
 
-DELETE /book/:id - delete a book, access by id
+DELETE /books/:id - delete a book, access by id
 
 
 <h3>Publishers</h3>
 
-GET /publisher/ - get all publishers
+GET /publishers/ - get all publishers
 
-GET /publisher/:id - get publisher by id
+GET /publishers/:id - get publisher by id
 
-POST /publisher/ - create a new publisher
+POST /publishers/ - create a new publisher
 
 
-PUT /publisher/:id - update publisher information, access by id
+PUT /publishers/:id - update publisher information, access by id
 
-DELETE /publisher/:id - delete publisher, access by id
+DELETE /publishers/:id - delete publisher, access by id
 
 
 <h3>Orders</h3>
@@ -85,13 +85,13 @@ GET order/ - for admins in dashboard to see all orders
 
 <h3>Users</h3>
 
-GET /user/ - get all users
+GET /users/ - get all users
 
-GET /user/:id - get a specific user by id
+GET /users/:id - get a specific user by id
 
-PUT /user/:id/role - update a specific user information, access by id
+PUT /users/:id/role - update a specific user information, access by id
 
-DELETE /user/:id - delete a user, access by id
+DELETE /users/:id - delete a user, access by id
 
 
 
